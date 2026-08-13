@@ -184,7 +184,7 @@ const DEFAULT_SOURCES = [
 ];
 
 const DEFAULT_PROFILE = {
-  name: "",
+  name: "张三",
   intent: "AI 产品经理实习生",
   education: "硕士",
   major: "应用统计",
@@ -691,10 +691,10 @@ function NoTarget({ setPage }) {
 }
 
 function ProfileModal({ profile, close, save, firstRun }) {
-  const [draft, setDraft] = useState(profile);
+  const [draft, setDraft] = useState(() => ({ ...profile, name: profile.name?.trim() || "张三" }));
   const update = (key, value) => setDraft({ ...draft, [key]: value });
   const canSave = draft.name.trim() && draft.intent.trim() && draft.major.trim();
-  return <div className="overlay profile-overlay"><section className="modal profile-modal">{!firstRun && <button className="modal-close" onClick={close}><IconX size={20} /></button>}<div className="profile-modal-head"><span><IconUserCircle size={30} /></span><div><p className="eyebrow">第一步 · 建立画像</p><h2>{firstRun ? "先认识你，再推荐岗位" : "编辑我的求职画像"}</h2><p>这些信息只用于筛选实习岗位和生成学习计划，之后可以随时修改。</p></div></div><div className="profile-form"><label>怎么称呼你<input value={draft.name} onChange={(event) => update("name", event.target.value)} placeholder="例如：世钰" autoFocus /></label><label>目标岗位<input value={draft.intent} onChange={(event) => update("intent", event.target.value)} placeholder="例如：AI 产品经理实习生" /></label><label>学历<select value={draft.education} onChange={(event) => update("education", event.target.value)}><option>本科</option><option>硕士</option><option>博士</option></select></label><label>专业<input value={draft.major} onChange={(event) => update("major", event.target.value)} placeholder="例如：应用统计" /></label><label>毕业年份<select value={draft.gradYear} onChange={(event) => update("gradYear", event.target.value)}><option>2027</option><option>2028</option><option>2029</option></select></label><label>意向城市<select value={draft.city} onChange={(event) => update("city", event.target.value)}><option>北京</option><option>上海</option><option>杭州</option><option>深圳</option></select></label><label>每周可实习<select value={draft.days} onChange={(event) => update("days", event.target.value)}><option value="3">3天</option><option value="4">4天</option><option value="5">5天</option></select></label><label>可连续实习<select value={draft.months} onChange={(event) => update("months", event.target.value)}><option value="3">3个月</option><option value="4">4个月</option><option value="6">6个月</option></select></label><label className="full">已掌握技能<input value={draft.skills} onChange={(event) => update("skills", event.target.value)} placeholder="用顿号分隔，例如：Python、SQL、Dify" /></label></div><div className="modal-actions profile-actions">{!firstRun && <button className="secondary-button" onClick={close}>取消</button>}<button className="primary-button" disabled={!canSave} onClick={() => save(draft)}>保存画像，查看岗位 <IconArrowRight size={18} /></button></div></section></div>;
+  return <div className="overlay profile-overlay"><section className="modal profile-modal">{!firstRun && <button className="modal-close" onClick={close}><IconX size={20} /></button>}<div className="profile-modal-head"><span><IconUserCircle size={30} /></span><div><p className="eyebrow">第一步 · 建立画像</p><h2>{firstRun ? "先认识你，再推荐岗位" : "编辑我的求职画像"}</h2><p>公开演示默认使用虚构用户“张三”，你可以随时修改；信息只用于岗位筛选和学习计划。</p></div></div><div className="profile-form"><label>怎么称呼你<input value={draft.name} onChange={(event) => update("name", event.target.value)} placeholder="例如：张三" autoFocus /></label><label>目标岗位<input value={draft.intent} onChange={(event) => update("intent", event.target.value)} placeholder="例如：AI 产品经理实习生" /></label><label>学历<select value={draft.education} onChange={(event) => update("education", event.target.value)}><option>本科</option><option>硕士</option><option>博士</option></select></label><label>专业<input value={draft.major} onChange={(event) => update("major", event.target.value)} placeholder="例如：应用统计" /></label><label>毕业年份<select value={draft.gradYear} onChange={(event) => update("gradYear", event.target.value)}><option>2027</option><option>2028</option><option>2029</option></select></label><label>意向城市<select value={draft.city} onChange={(event) => update("city", event.target.value)}><option>北京</option><option>上海</option><option>杭州</option><option>深圳</option></select></label><label>每周可实习<select value={draft.days} onChange={(event) => update("days", event.target.value)}><option value="3">3天</option><option value="4">4天</option><option value="5">5天</option></select></label><label>可连续实习<select value={draft.months} onChange={(event) => update("months", event.target.value)}><option value="3">3个月</option><option value="4">4个月</option><option value="6">6个月</option></select></label><label className="full">已掌握技能<input value={draft.skills} onChange={(event) => update("skills", event.target.value)} placeholder="用顿号分隔，例如：Python、SQL、Dify" /></label></div><div className="modal-actions profile-actions">{!firstRun && <button className="secondary-button" onClick={close}>取消</button>}<button className="primary-button" disabled={!canSave} onClick={() => save(draft)}>保存画像，查看岗位 <IconArrowRight size={18} /></button></div></section></div>;
 }
 
 function AddSourceModal({ close, addAndOpen }) {
@@ -798,7 +798,10 @@ export function App() {
   const initialPage = new URLSearchParams(window.location.search).get("page");
   const [page, setPage] = useState(NAV_ITEMS.some((item) => item.id === initialPage) ? initialPage : "discover");
   const [profile, setProfile] = useState(() => {
-    try { return JSON.parse(window.localStorage.getItem("jobfit-profile")) || DEFAULT_PROFILE; } catch { return DEFAULT_PROFILE; }
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("jobfit-profile"));
+      return saved ? { ...DEFAULT_PROFILE, ...saved, name: saved.name?.trim() || "张三" } : DEFAULT_PROFILE;
+    } catch { return DEFAULT_PROFILE; }
   });
   const [profileOpen, setProfileOpen] = useState(() => !window.localStorage.getItem("jobfit-profile"));
   const [targetJob, setTargetJob] = useState(() => {
