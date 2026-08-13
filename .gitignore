@@ -1,0 +1,14 @@
+node_modules/
+.venv/
+.env
+backend/jobfit.db
+backend/*.log
+dist/
+__pycache__/
+.pytest_cache/
+.edge-*/
+audit/
+qa-*.png
+design-qa.md
+vite.log
+AGENTS.md
