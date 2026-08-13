@@ -4,6 +4,14 @@
 
 `粘贴陌生 JD → 结构化解析 → 画像匹配 → 缺失技能 → 学习资源 → 每日任务 → 动态测评`
 
+## 在线体验
+
+**[立即体验 JobFit Agent](https://jobfit-agent-demo.luminasunny7.chatgpt.site)**
+
+公开体验默认使用无密钥的规则分析模式，可以完整演示岗位匹配、学习计划和动态测评，不会产生模型调用费用。本地配置 Kimi API Key 后可切换为大模型解析与联网搜索。
+
+![JobFit Agent 岗位发现页面](./preview-home.png)
+
 ## 一键启动
 
 在 PowerShell 中进入本目录，运行：
