@@ -42,9 +42,9 @@ test("falls back to index.html for an unknown app route", async () => {
 });
 
 test("does not turn missing API or write requests into the app shell", async () => {
-  for (const request of [
-    new Request("https://example.test/api/missing", { headers: { accept: "application/json" } }),
-    new Request("https://example.test/flow", { method: "POST", headers: { accept: "text/html" } }),
+  for (const [request, expectedAssetCalls] of [
+    [new Request("https://example.test/api/missing", { headers: { accept: "application/json" } }), 0],
+    [new Request("https://example.test/flow", { method: "POST", headers: { accept: "text/html" } }), 1],
   ]) {
     let calls = 0;
     const response = await worker.fetch(request, {
@@ -57,8 +57,27 @@ test("does not turn missing API or write requests into the app shell", async () 
     });
 
     assert.equal(response.status, 404);
-    assert.equal(calls, 1);
+    assert.equal(calls, expectedAssetCalls);
   }
+});
+
+test("serves the online demo API without a model key", async () => {
+  const response = await worker.fetch(new Request("https://example.test/api/pipeline/analyze", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      jd_text: "AI 产品经理实习生，工作地点上海，每周到岗5天，连续实习3个月。负责 Agent、Prompt、SQL 与用户研究。",
+      profile: { name: "王", intent: "AI 产品经理实习生", education: "硕士", major: "应用统计", gradYear: "2028", city: "上海", days: "5", months: "3", skills: "Python、Dify" },
+    }),
+  }), { ASSETS: { fetch: async () => new Response("missing", { status: 404 }) } });
+
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(data.mode, "demo");
+  assert.equal(data.job.city, "上海");
+  assert.ok(data.job.requiredSkills.includes("SQL"));
+  assert.ok(data.learning.steps.length >= 3);
+  assert.ok(data.learning.questions.length >= 3);
 });
 
 test("emits the files required by Sites packaging", async () => {
